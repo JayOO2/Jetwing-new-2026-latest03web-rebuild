@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Tour {
   id: number;
@@ -51,25 +53,24 @@ const defaultTours: Tour[] = [
   },
 ];
 
-const ADMIN_PASSWORD = "admin123";
-
 export default function AdminTours() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
+  const router = useRouter();
   const [tours, setTours] = useState<Tour[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTour, setEditingTour] = useState<Tour | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const user = localStorage.getItem("jetwingCurrentUser");
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
     const saved = localStorage.getItem("jetwingTours");
     if (saved) setTours(JSON.parse(saved));
     else setTours(defaultTours);
-  }, []);
-
-  const handleLogin = () => {
-    if (password === ADMIN_PASSWORD) setIsAuthenticated(true);
-    else alert("Invalid password!");
-  };
+    setLoading(false);
+  }, [router]);
 
   const saveTours = (newTours: Tour[]) => {
     setTours(newTours);
@@ -95,18 +96,7 @@ export default function AdminTours() {
     setEditingTour(null);
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="bg-gray-800 p-8 rounded-lg w-full max-w-md">
-          <h1 className="text-2xl font-bold text-white mb-6 text-center">Admin Login</h1>
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}
-            className="w-full px-4 py-3 mb-4 bg-gray-700 border border-gray-600 rounded-lg text-white" />
-          <button onClick={handleLogin} className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg">Login</button>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 p-8">
@@ -114,7 +104,7 @@ export default function AdminTours() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Manage Tours</h1>
           <div className="flex gap-4">
-            <a href="/admin" className="text-blue-400">← Back</a>
+            <a href="/admin/dashboard" className="text-blue-400">← Dashboard</a>
             <a href="/" className="text-blue-400">View Site</a>
           </div>
         </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Destination {
   id: number;
@@ -10,32 +12,31 @@ interface Destination {
 }
 
 const defaultDestinations: Destination[] = [
-  { id: 1, name: "Anuradhapura", image: "https://jetwingtravels.com/wp-content/uploads/2023/07/Jetavanaramaya-800-x-550.jpg", description: "The epicentre of Sinhalese civilization dating back to 4th century BC" },
-  { id: 2, name: "Arugam Bay", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/surf-board.jpg", description: "Unspoilt beaches and magnificent waves for surfers" },
-  { id: 3, name: "Bentota", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/1-02-14.jpg", description: "Beautiful beaches, watersports and buzzing streets" },
-  { id: 4, name: "Colombo", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/National-museum-800x550-1.jpg", description: "Hotspot with diverse attractions" },
-  { id: 5, name: "Dambulla", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/Dambulla-Cave-Temple-800x550-1.jpg", description: "Famous for the sacred cave temple complex" },
-  { id: 6, name: "Ella", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/Demodara-Bridge-800x550-1.jpg", description: "Majestic waterfalls, hidden caves, breathtaking mountain views" },
-  { id: 7, name: "Galle", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/Fort-Lighthouse.jpg", description: "Southern capital where natural and cultural diversity thrives" },
-  { id: 8, name: "Habarana", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/Habarana-800x550-2.jpg", description: "Gateway to cultural triangle and wildlife adventures" },
+  { id: 1, name: "Anuradhapura", image: "https://jetwingtravels.com/wp-content/uploads/2023/07/Jetavanaramaya-800-x-550.jpg", description: "The epicentre of Sinhalese civilization" },
+  { id: 2, name: "Arugam Bay", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/surf-board.jpg", description: "Unspoilt beaches and waves" },
+  { id: 3, name: "Bentota", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/1-02-14.jpg", description: "Beautiful beaches and watersports" },
+  { id: 4, name: "Colombo", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/National-museum-800x550-1.jpg", description: "Capital city attractions" },
+  { id: 5, name: "Dambulla", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/Dambulla-Cave-Temple-800x550-1.jpg", description: "Sacred cave temple complex" },
+  { id: 6, name: "Ella", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/Demodara-Bridge-800x550-1.jpg", description: "Waterfalls and mountain views" },
+  { id: 7, name: "Galle", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/Fort-Lighthouse.jpg", description: "Historic fort city" },
+  { id: 8, name: "Habarana", image: "https://jetwingtravels.com/wp-content/uploads/2023/08/Habarana-800x550-2.jpg", description: "Gateway to cultural triangle" },
 ];
 
-const ADMIN_PASSWORD = "admin123";
-
 export default function AdminDestinations() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
+  const router = useRouter();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingDest, setEditingDest] = useState<Destination | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const user = localStorage.getItem("jetwingCurrentUser");
+    if (!user) { router.push("/auth/login"); return; }
     const saved = localStorage.getItem("jetwingDestinations");
     if (saved) setDestinations(JSON.parse(saved));
     else setDestinations(defaultDestinations);
-  }, []);
-
-  const handleLogin = () => password === ADMIN_PASSWORD ? setIsAuthenticated(true) : alert("Invalid!");
+    setLoading(false);
+  }, [router]);
 
   const saveDestinations = (newDest: Destination[]) => {
     setDestinations(newDest);
@@ -47,30 +48,20 @@ export default function AdminDestinations() {
   };
 
   const saveDest = (dest: Destination) => {
-    let newDest: Destination[];
-    newDest = editingDest ? destinations.map(d => d.id === dest.id ? dest : d) : [...destinations, { ...dest, id: Date.now() }];
+    let newDest: Destination[] = editingDest ? destinations.map(d => d.id === dest.id ? dest : d) : [...destinations, { ...dest, id: Date.now() }];
     saveDestinations(newDest);
     setShowForm(false);
     setEditingDest(null);
   };
 
-  if (!isAuthenticated) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="bg-gray-800 p-8 rounded-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">Login</h1>
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}
-          className="w-full px-4 py-3 mb-4 bg-gray-700 border border-gray-600 rounded text-white" />
-        <button onClick={handleLogin} className="w-full py-3 bg-blue-600 text-white font-bold rounded">Login</button>
-      </div>
-    </div>
-  );
+  if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Manage Destinations</h1>
-          <div className="flex gap-4"><a href="/admin" className="text-blue-400">← Back</a><a href="/" className="text-blue-400">View Site</a></div>
+          <div className="flex gap-4"><a href="/admin/dashboard" className="text-blue-400">← Dashboard</a><a href="/" className="text-blue-400">View Site</a></div>
         </div>
         <button onClick={() => { setEditingDest(null); setShowForm(true); }} className="mb-6 px-6 py-3 bg-green-600 text-white font-bold rounded">+ Add Destination</button>
         {showForm && <DestForm dest={editingDest} onSave={saveDest} onCancel={() => { setShowForm(false); setEditingDest(null); }} />}

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Offer {
   id: number;
@@ -12,29 +14,27 @@ interface Offer {
 }
 
 const defaultOffers: Offer[] = [
-  { id: 1, title: "Maldives Special Offer", discount: "Save up to 15%", price: "Starting from $5550", image: "https://jetwingtravels.com/wp-content/uploads/2023/03/Maldives-offer.jpg", description: "Escape to a luxury 5-star private island resort in the Maldives." },
-  { id: 2, title: "Ayurveda Wellness", discount: "Save up to 15%", price: "Starting from $1180", image: "https://jetwingtravels.com/wp-content/uploads/2023/03/Untitled-2-05-scaled.jpg", description: "Immerse in the ultimate Ayurveda Wellness experience in Sri Lanka." },
+  { id: 1, title: "Maldives Special Offer", discount: "Save up to 15%", price: "Starting from $5550", image: "https://jetwingtravels.com/wp-content/uploads/2023/03/Maldives-offer.jpg", description: "Luxury private island resort" },
+  { id: 2, title: "Ayurveda Wellness", discount: "Save up to 15%", price: "Starting from $1180", image: "https://jetwingtravels.com/wp-content/uploads/2023/03/Untitled-2-05-scaled.jpg", description: "Wellness experience in Sri Lanka" },
 ];
 
-const ADMIN_PASSWORD = "admin123";
-
 export default function AdminOffers() {
-  const [isAuth, setIsAuth] = useState(false);
-  const [pwd, setPwd] = useState("");
+  const router = useRouter();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editOffer, setEditOffer] = useState<Offer | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const user = localStorage.getItem("jetwingCurrentUser");
+    if (!user) { router.push("/auth/login"); return; }
     const saved = localStorage.getItem("jetwingOffers");
     if (saved) setOffers(JSON.parse(saved));
     else setOffers(defaultOffers);
-  }, []);
-
-  const login = () => pwd === ADMIN_PASSWORD ? setIsAuth(true) : alert("Invalid!");
+    setLoading(false);
+  }, [router]);
 
   const save = (newOffers: Offer[]) => { setOffers(newOffers); localStorage.setItem("jetwingOffers", JSON.stringify(newOffers)); };
-
   const del = (id: number) => { if(confirm("Delete?")) save(offers.filter(o => o.id !== id)); };
 
   const saveOffer = (o: Offer) => {
@@ -42,23 +42,14 @@ export default function AdminOffers() {
     save(newO); setShowForm(false); setEditOffer(null);
   };
 
-  if (!isAuth) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="bg-gray-800 p-8 rounded-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">Login</h1>
-        <input type="password" placeholder="Password" value={pwd} onChange={e => setPwd(e.target.value)}
-          className="w-full px-4 py-3 mb-4 bg-gray-700 border border-gray-600 rounded text-white" />
-        <button onClick={login} className="w-full py-3 bg-blue-600 text-white font-bold rounded">Login</button>
-      </div>
-    </div>
-  );
+  if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Manage Offers</h1>
-          <div className="flex gap-4"><a href="/admin" className="text-blue-400">← Back</a><a href="/" className="text-blue-400">View Site</a></div>
+          <div className="flex gap-4"><a href="/admin/dashboard" className="text-blue-400">← Dashboard</a><a href="/" className="text-blue-400">View Site</a></div>
         </div>
         <button onClick={() => { setEditOffer(null); setShowForm(true); }} className="mb-6 px-6 py-3 bg-green-600 text-white font-bold rounded">+ Add Offer</button>
         {showForm && <OfferForm offer={editOffer} onSave={saveOffer} onCancel={() => { setShowForm(false); setEditOffer(null); }} />}
@@ -90,9 +81,9 @@ function OfferForm({ offer, onSave, onCancel }: { offer: Offer | null; onSave: (
       <input type="text" placeholder="Offer Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
         className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
       <div className="grid grid-cols-2 gap-4">
-        <input type="text" placeholder="Discount (e.g., Save up to 15%)" value={form.discount} onChange={e => setForm({ ...form, discount: e.target.value })}
+        <input type="text" placeholder="Discount" value={form.discount} onChange={e => setForm({ ...form, discount: e.target.value })}
           className="px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
-        <input type="text" placeholder="Price (e.g., Starting from $5550)" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}
+        <input type="text" placeholder="Price" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })}
           className="px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white" />
       </div>
       <input type="text" placeholder="Image URL" value={form.image} onChange={e => setForm({ ...form, image: e.target.value })}

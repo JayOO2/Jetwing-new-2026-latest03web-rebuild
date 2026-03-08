@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Hotel {
   id: number;
@@ -11,33 +13,31 @@ interface Hotel {
 }
 
 const defaultHotels: Hotel[] = [
-  { id: 1, name: "Jetwing Blue", location: "Negombo", image: "https://jetwingtravels.com/wp-content/uploads/2023/03/jetwing-blue-900x760-1.jpg", description: "Beachfront hotel with stunning ocean views" },
-  { id: 2, name: "Jetwing Colombo Seven", location: "Colombo", image: "https://jetwingtravels.com/wp-content/uploads/2023/10/Jetwing-Colombo-Seven-Featured-Image.jpg", description: "Modern luxury in the heart of Colombo" },
-  { id: 3, name: "Jetwing Saman Villas", location: "Bentota", image: "https://jetwingtravels.com/wp-content/uploads/2023/10/featured-02.jpg", description: "Award-winning beachfront boutique hotel" },
-  { id: 4, name: "Jetwing Vil Uyana", location: "Sigiriya", image: "https://jetwingtravels.com/wp-content/uploads/2023/10/head-02.jpg", description: "Luxury eco-lodge near Sigiriya Rock" },
-  { id: 5, name: "Jetwing Lake", location: "Dambulla", image: "https://jetwingtravels.com/wp-content/uploads/2023/03/jetwing-blue-900x760-1.jpg", description: "Serene lakeside retreat" },
-  { id: 6, name: "Jetwing Yala", location: "Yala", image: "https://jetwingtravels.com/wp-content/uploads/2023/10/featured-02.jpg", description: "Luxury safari lodge near Yala National Park" },
+  { id: 1, name: "Jetwing Blue", location: "Negombo", image: "https://jetwingtravels.com/wp-content/uploads/2023/03/jetwing-blue-900x760-1.jpg", description: "Beachfront hotel" },
+  { id: 2, name: "Jetwing Colombo Seven", location: "Colombo", image: "https://jetwingtravels.com/wp-content/uploads/2023/10/Jetwing-Colombo-Seven-Featured-Image.jpg", description: "Modern luxury" },
+  { id: 3, name: "Jetwing Saman Villas", location: "Bentota", image: "https://jetwingtravels.com/wp-content/uploads/2023/10/featured-02.jpg", description: "Award-winning boutique" },
+  { id: 4, name: "Jetwing Vil Uyana", location: "Sigiriya", image: "https://jetwingtravels.com/wp-content/uploads/2023/10/head-02.jpg", description: "Luxury eco-lodge" },
+  { id: 5, name: "Jetwing Lake", location: "Dambulla", image: "https://jetwingtravels.com/wp-content/uploads/2023/03/jetwing-blue-900x760-1.jpg", description: "Lakeside retreat" },
+  { id: 6, name: "Jetwing Yala", location: "Yala", image: "https://jetwingtravels.com/wp-content/uploads/2023/10/featured-02.jpg", description: "Safari lodge" },
 ];
 
-const ADMIN_PASSWORD = "admin123";
-
 export default function AdminHotels() {
-  const [isAuth, setIsAuth] = useState(false);
-  const [pwd, setPwd] = useState("");
+  const router = useRouter();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editHotel, setEditHotel] = useState<Hotel | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const user = localStorage.getItem("jetwingCurrentUser");
+    if (!user) { router.push("/auth/login"); return; }
     const saved = localStorage.getItem("jetwingHotels");
     if (saved) setHotels(JSON.parse(saved));
     else setHotels(defaultHotels);
-  }, []);
-
-  const login = () => pwd === ADMIN_PASSWORD ? setIsAuth(true) : alert("Invalid!");
+    setLoading(false);
+  }, [router]);
 
   const save = (newHotels: Hotel[]) => { setHotels(newHotels); localStorage.setItem("jetwingHotels", JSON.stringify(newHotels)); };
-
   const del = (id: number) => { if(confirm("Delete?")) save(hotels.filter(h => h.id !== id)); };
 
   const saveHotel = (h: Hotel) => {
@@ -45,23 +45,14 @@ export default function AdminHotels() {
     save(newH); setShowForm(false); setEditHotel(null);
   };
 
-  if (!isAuth) return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="bg-gray-800 p-8 rounded-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-6 text-center">Login</h1>
-        <input type="password" placeholder="Password" value={pwd} onChange={e => setPwd(e.target.value)}
-          className="w-full px-4 py-3 mb-4 bg-gray-700 border border-gray-600 rounded text-white" />
-        <button onClick={login} className="w-full py-3 bg-blue-600 text-white font-bold rounded">Login</button>
-      </div>
-    </div>
-  );
+  if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Manage Hotels</h1>
-          <div className="flex gap-4"><a href="/admin" className="text-blue-400">← Back</a><a href="/" className="text-blue-400">View Site</a></div>
+          <div className="flex gap-4"><a href="/admin/dashboard" className="text-blue-400">← Dashboard</a><a href="/" className="text-blue-400">View Site</a></div>
         </div>
         <button onClick={() => { setEditHotel(null); setShowForm(true); }} className="mb-6 px-6 py-3 bg-green-600 text-white font-bold rounded">+ Add Hotel</button>
         {showForm && <HotelForm hotel={editHotel} onSave={saveHotel} onCancel={() => { setShowForm(false); setEditHotel(null); }} />}
