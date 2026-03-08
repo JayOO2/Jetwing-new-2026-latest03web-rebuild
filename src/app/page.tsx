@@ -62,9 +62,17 @@ export default function Home() {
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-4xl md:text-6xl font-bold mb-4">Where Dreams Take Flight</h1>
           <p className="text-xl md:text-2xl mb-8">Your Home, Your Journey, Your Hospitality Haven</p>
-          <Link href="/destinations" className="btn-gold text-lg">
-            Explore Destinations
-          </Link>
+          <div className="flex flex-col md:flex-row gap-4 justify-center">
+            <Link href="/destinations" className="btn-gold text-lg">
+              Explore Destinations
+            </Link>
+            <Link href="/auth/login" className="bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-lg hover:bg-white/30 transition-colors text-lg font-medium">
+              Login
+            </Link>
+            <Link href="/auth/signup" className="btn-primary text-lg">
+              Sign Up
+            </Link>
+          </div>
         </div>
       </section>
 

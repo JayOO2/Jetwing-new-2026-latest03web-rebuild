@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -16,6 +16,19 @@ const navLinks = [
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<{ name: string } | null>(null);
+
+  useEffect(() => {
+    const currentUser = localStorage.getItem("jetwingCurrentUser");
+    if (currentUser) {
+      setUser(JSON.parse(currentUser));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("jetwingCurrentUser");
+    setUser(null);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-md">
@@ -41,11 +54,27 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
-            <a href="mailto:info@jetwingtravels.com" className="text-sm text-gray-600 hover:text-primary">
-              ✉️ info@jetwingtravels.com
-            </a>
-            <a href="tel:+94777265746" className="btn-primary text-sm">
+          <div className="hidden md:flex items-center gap-3">
+            {user ? (
+              <>
+                <Link href="/admin/dashboard" className="text-sm text-gold font-medium">
+                  Welcome, {user.name}
+                </Link>
+                <button onClick={handleLogout} className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-100">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login" className="px-4 py-2 text-sm text-primary font-medium hover:bg-gray-100 rounded">
+                  Login
+                </Link>
+                <Link href="/auth/signup" className="px-4 py-2 text-sm bg-gold text-white font-medium rounded hover:bg-yellow-600">
+                  Sign Up
+                </Link>
+              </>
+            )}
+            <a href="tel:+94777265746" className="btn-primary text-sm ml-2">
               📞 +94 77 726 5746
             </a>
           </div>
@@ -76,6 +105,14 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            <div className="mt-4 pt-4 border-t border-gray-200 flex gap-3">
+              <Link href="/auth/login" className="flex-1 px-4 py-2 text-center text-sm border border-gray-300 rounded">
+                Login
+              </Link>
+              <Link href="/auth/signup" className="flex-1 px-4 py-2 text-center text-sm bg-gold text-white rounded">
+                Sign Up
+              </Link>
+            </div>
           </div>
         )}
       </div>
