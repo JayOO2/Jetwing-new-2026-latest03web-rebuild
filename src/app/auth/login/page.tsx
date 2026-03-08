@@ -36,72 +36,84 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md">
-        <div className="text-center mb-6">
-          <Link href="/" className="inline-block">
-            <img 
-              src="https://jetwingtravels.com/wp-content/uploads/2023/03/main-logo.png" 
-              alt="Jetwing Travels" 
-              className="h-12 mx-auto"
-            />
-          </Link>
-          <h1 className="text-2xl font-bold text-white mt-4">Welcome Back</h1>
-          <p className="text-gray-400 text-sm">Sign in to your account</p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 text-red-400 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-gold"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-gold"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-gold hover:bg-yellow-600 text-white font-bold rounded-lg transition-colors disabled:opacity-50"
-          >
-            {loading ? "Please wait..." : "Sign In"}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-gray-400">
-            Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-gold hover:underline">
-              Sign Up
+      <div 
+        className="bg-white rounded-lg shadow-xl w-full"
+        style={{ width: "408px", height: "881px", maxHeight: "90vh", overflow: "auto" }}
+      >
+        {/* Header with background */}
+        <div 
+          className="relative h-48 rounded-t-lg overflow-hidden"
+          style={{ background: "linear-gradient(135deg, #1a3c5c 0%, #2d5a87 100%)" }}
+        >
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+            <Link href="/">
+              <img 
+                src="https://jetwingtravels.com/wp-content/uploads/2023/03/main-logo.png" 
+                alt="Jetwing Travels" 
+                className="h-16 w-auto"
+              />
             </Link>
-          </p>
+            <h1 className="text-2xl font-bold text-white mt-4">Welcome Back</h1>
+            <p className="text-gray-300 text-sm">Sign in to your account</p>
+          </div>
         </div>
 
-        <div className="mt-4 text-center">
-          <Link href="/" className="text-gray-500 hover:text-gray-400 text-sm">
-            ← Back to Website
-          </Link>
+        {/* Form */}
+        <div className="p-8">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a84b] focus:border-transparent"
+                placeholder="you@example.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4a84b] focus:border-transparent"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-[#d4a84b] hover:bg-[#c49a3d] text-white font-bold rounded-lg transition-colors disabled:opacity-50"
+            >
+              {loading ? "Please wait..." : "Sign In"}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Don't have an account?{" "}
+              <Link href="/auth/signup" className="text-[#d4a84b] hover:underline font-medium">
+                Sign Up
+              </Link>
+            </p>
+          </div>
+
+          <div className="mt-4 text-center">
+            <Link href="/" className="text-gray-500 hover:text-gray-700 text-sm">
+              ← Back to Website
+            </Link>
+          </div>
         </div>
       </div>
     </div>
